@@ -1,23 +1,24 @@
 # coding: utf-8
 
 """fct.py
-    
-    Here are the general functions that are used through the different 
-    notebooks. 
+
+    Here are the general functions that are used through the different
+    notebooks.
 
     Can be found here
     - functions to generate datas
     - functions to normalize
     - plotting functions
-    
+
 """
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-from matplotlib import cm
 import matplotlib.cm as cmx
 import matplotlib.colors as colors
+from matplotlib import cm
+from matplotlib.patches import Ellipse
 
 ## -------------------- Generate datas  -------------------
 
@@ -26,11 +27,11 @@ def generate_multivariate(size=500, dimension=3, mean=0):
 
     # generate a covariance matrix from a random matrix of size dimension ** 2
     random_matrix = np.random.rand(dimension, dimension)
-    
+
     # a covariance matrix should be semi-definite positive. Such matrix can
     # be generated as the product of a random matrix and its transposed.
     cov = np.dot(random_matrix, random_matrix.T)
-    
+
     # mean is fixed to zero if not specified
     if mean == 0:
         mean = [0] * dimension
@@ -45,11 +46,11 @@ def normalize_min_max(data, dimension):
     range to [0, 1]."""
 
     for i in range(dimension):
-        data[:, i] = ((data[:, i] - np.amin(data[:, i])) / 
+        data[:, i] = ((data[:, i] - np.amin(data[:, i])) /
                       (np.amax(data[:, i]) - np.amin(data[:, i])))
 
 def normalize(data):
-    """Normalize a dataset column by column. Note that it makes a copy and 
+    """Normalize a dataset column by column. Note that it makes a copy and
     thus might be slower and memory costly than other solutions."""
 
     res = np.copy(data)
@@ -72,13 +73,27 @@ def plt_3d(data, title='data'):
     ax.scatter(data_t[0], data_t[1], data_t[2], alpha=0.2)
     plt.title(title)
 
-def plot_2d(datas, color='r'):
+def plot_2d(datas, color='r', title='Representation of datas'):
     datas_t = np.array(datas)
     plt.scatter(datas_t[:,0], datas_t[:,1], alpha=0.2, c=color)
-    plt.title('Representation of datas')
+    plt.title(title)
 
 def plot_clusters(clusters, k):
     color_norm = colors.Normalize(vmin=0, vmax=k-1)
     scalar_map = cmx.ScalarMappable(norm=color_norm, cmap='hot')
     for i in range(k):
         plot_2d(clusters[i], scalar_map.to_rgba(i))
+
+def plot_multivariate_ellipse(multivariates, K):
+    color_norm = colors.Normalize(vmin=0, vmax=K-1)
+    scalar_map = cmx.ScalarMappable(norm=color_norm, cmap='autumn')
+    for i, m in enumerate(multivariates):
+        vals, vecs = np.linalg.eigh(m.cov)
+        order = vals.argsort()[::-1]
+        vals, vecs = vals[order], vecs[:,order]
+        theta = np.degrees(np.arctan2(*vecs[:,0][::-1]))
+        width, height = 3 * np.sqrt(vals)
+        plt.scatter(m.mean[0], m.mean[1], c=scalar_map.to_rgba(i))
+        ellip = Ellipse(xy=m.mean, width=width, height=height,
+                        angle=theta, fill=False, color=scalar_map.to_rgba(i))
+        plt.gca().add_artist(ellip)

@@ -66,20 +66,27 @@ def normalize_pd(data):
 
 ## -------------------- Plotting  -------------------
 
-def plt_3d(data, title=''):
+def plot_3d(data, title='', alpha=0.2):
     """Scatter plot of 3D data."""
     fig = plt.figure()
     ax = fig.gca(projection='3d')
+    maxi = max([max(abs(el)) for el in data])
+    ax.set_xlim([-maxi, maxi])
+    ax.set_ylim([-maxi, maxi])
+    ax.set_zlim([-maxi, maxi])
     data_t = data.T
-    ax.scatter(data_t[0], data_t[1], data_t[2], alpha=0.2)
+    ax.scatter(data_t[0], data_t[1], data_t[2], alpha=alpha)
     plt.title(title)
 
 
-
-def plot_2d(datas, color='r', title=''):
+def plot_2d(datas, color='r', title='', maxi=None, fig=None, alpha=0.2):
     """Scatter plot of 2D data."""
     datas_t = np.array(datas)
-    plt.scatter(datas_t[:,0], datas_t[:,1], alpha=0.2, c=color)
+    if maxi:
+        ax = fig.gca()
+        ax.set_xlim([-maxi, maxi])
+        ax.set_ylim([-maxi, maxi])
+    plt.scatter(datas_t[:,0], datas_t[:,1], alpha=alpha, c=color)
     plt.title(title)
 
 

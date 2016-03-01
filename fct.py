@@ -66,33 +66,46 @@ def normalize_pd(data):
 
 ## -------------------- Plotting  -------------------
 
-def plt_3d(data, title='data'):
+def plt_3d(data, title=''):
+    """Scatter plot of 3D data."""
     fig = plt.figure()
     ax = fig.gca(projection='3d')
     data_t = data.T
     ax.scatter(data_t[0], data_t[1], data_t[2], alpha=0.2)
     plt.title(title)
 
-def plot_2d(datas, color='r', title='Representation of datas'):
+
+
+def plot_2d(datas, color='r', title=''):
+    """Scatter plot of 2D data."""
     datas_t = np.array(datas)
     plt.scatter(datas_t[:,0], datas_t[:,1], alpha=0.2, c=color)
     plt.title(title)
 
+
 def plot_clusters(clusters, k):
+    """Plot each of the given cluster in a different color. clusters is a
+    list of list."""
+    # generate a colormap of size k
     color_norm = colors.Normalize(vmin=0, vmax=k-1)
     scalar_map = cmx.ScalarMappable(norm=color_norm, cmap='hot')
-    for i in range(k):
+    # plot each cluster with a given color of the generated colormap
+    for i, cluster in range(k):
         plot_2d(clusters[i], scalar_map.to_rgba(i))
 
+
 def plot_multivariate_ellipse(multivariates, K):
+    """Plot confidence ellipses of the given multivariates."""
+    # Generate a colormap to attribute a color to each cluster
     color_norm = colors.Normalize(vmin=0, vmax=K-1)
     scalar_map = cmx.ScalarMappable(norm=color_norm, cmap='autumn')
+
     for i, m in enumerate(multivariates):
         vals, vecs = np.linalg.eigh(m.cov)
-        order = vals.argsort()[::-1]
-        vals, vecs = vals[order], vecs[:,order]
+        # order = vals.argsort()[::-1]
+        # vals, vecs = vals[order], vecs[:,order]
         theta = np.degrees(np.arctan2(*vecs[:,0][::-1]))
-        width, height = 3 * np.sqrt(vals)
+        width, height = 4 * np.sqrt(vals)
         plt.scatter(m.mean[0], m.mean[1], c=scalar_map.to_rgba(i))
         ellip = Ellipse(xy=m.mean, width=width, height=height,
                         angle=theta, fill=False, color=scalar_map.to_rgba(i))

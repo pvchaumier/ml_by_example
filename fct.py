@@ -99,7 +99,7 @@ def plot_clusters(clusters, k):
     color_norm = colors.Normalize(vmin=0, vmax=k-1)
     scalar_map = cmx.ScalarMappable(norm=color_norm, cmap='hot')
     # plot each cluster with a given color of the generated colormap
-    for i, cluster in range(k):
+    for i in range(k):
         plot_2d(clusters[i], scalar_map.to_rgba(i))
 
 
